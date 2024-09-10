@@ -1,25 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Suspense, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addTask, deleteTask } from './store/actions';
+import TaskForm from './components/TaskForm';
+import TaskList from './components/TaskList';
+const Task = React.lazy(() => import('./components/Task')); // Code splitting with React.lazy
 
-function App() {
+const App = () => {
+  const dispatch = useDispatch();
+  const tasks = useSelector((state) => state.tasks);
+  const inputRef = useRef();
+
+  const handleAddTask = (task) => {
+    dispatch(addTask(task));
+  };
+
+  const handleDeleteTask = (id) => {
+    dispatch(deleteTask(id));
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Task Manager</h1>
+      <TaskForm onAddTask={handleAddTask} inputRef={inputRef} />
+      <Suspense fallback={<div>Loading tasks...</div>}>
+        <TaskList tasks={tasks} onDeleteTask={handleDeleteTask} TaskComponent={Task} />
+      </Suspense>
     </div>
   );
-}
+};
 
 export default App;
